@@ -8,10 +8,13 @@
     <groupId>com.xyt.project</groupId>
     <version>1.0.0</version>
 
+
+
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.home>D:\app\Java\jdk-17.0.0.1</java.home>
     </properties>
 
     <dependencies>
@@ -38,13 +41,13 @@
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-            <version>1.6.2</version>
+            <artifactId>jakarta.mail</artifactId>
+            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.11</version>
+            <version>1.4.11</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
@@ -55,7 +58,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.36</version>
+            <version>2.0.9</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -81,8 +84,10 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>17</source>
+                    <target>17</target>
+                    <fork>true</fork>
+                    <executable>${java.home}/bin/javac</executable>
                 </configuration>
             </plugin>
 
@@ -121,8 +126,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/package/windows/HostsSubscribe/image
-                            </outputDirectory>
+                            <outputDirectory>${project.build.directory}/package/windows/HostsSubscribe/image</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>src/main/resources/image</directory>
@@ -148,16 +152,15 @@
                             <headerType>gui</headerType>
                             <jar>${project.build.directory}/${build.finalName}.jar</jar>
                             <outfile>${project.build.directory}/package/windows/HostsSubscribe/HostsSubscribe.exe</outfile>
-                            <downloadUrl>https://www.oracle.com/java/technologies/downloads/</downloadUrl>
+                            <downloadUrl>https://download.java.net/openjdk/jdk17.0.0.1/ri/openjdk-17.0.0.1+2_windows-x64_bin.zip</downloadUrl>
                             <classPath>
                                 <mainClass>com.xyt.project.HostsSubscribeApplication</mainClass>
-                                <addDependencies>false</addDependencies>
-                                <preCp>anything</preCp>
+                                <addDependencies>true</addDependencies>
                             </classPath>
                             <icon>target/package/windows/HostsSubscribe/image/app.ico</icon>
                             <jre>
-                                <path>D:\app\Java\jre1.8.0_201</path>
-                                <minVersion>1.8.0</minVersion>
+                                <path>D:\app\Java\jdk-17.0.0.1</path>
+                                <minVersion>17</minVersion>
                                 <jdkPreference>preferJre</jdkPreference>
                             </jre>
                             <versionInfo>
@@ -176,65 +179,40 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.6.0</version>
-                <executions>
-                    <execution>
-                        <id>package-windows</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/assembly/windows-assembly.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <executions>
                     <execution>
-                        <id>package-mac-app</id>
+                        <id>create-msi</id>
                         <phase>package</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>javapackager</executable>
+                            <executable>${java.home}/bin/jpackage</executable>
                             <arguments>
-                                <argument>-deploy</argument>
-                                <argument>-native</argument>
-                                <argument>image</argument>
-                                <argument>-srcdir</argument>
-                                <argument>.</argument>
-                                <argument>-srcfiles</argument>
-                                <argument>target/hosts-subscribe.jar</argument>
-                                <argument>-appclass</argument>
+                                <argument>--input</argument>
+                                <argument>${project.build.directory}</argument>
+                                <argument>--name</argument>
+                                <argument>HostsSubscribe</argument>
+                                <argument>--app-version</argument>
+                                <argument>${project.version}</argument>
+                                <argument>--main-class</argument>
                                 <argument>com.xyt.project.HostsSubscribeApplication</argument>
-                                <argument>-name</argument>
-                                <argument>HostsSubscribe</argument>
-                                <argument>-title</argument>
-                                <argument>主机订阅</argument>
-                                <argument>-vendor</argument>
-                                <argument>Easton-1024</argument>
-                                <argument>-outdir</argument>
-                                <argument>./target/package/mac</argument>
-                                <argument>-outfile</argument>
-                                <argument>HostsSubscribe</argument>
-                                <argument>-v</argument>
+                                <argument>--main-jar</argument>
+                                <argument>${project.build.finalName}.jar</argument>
+                                <argument>--type</argument>
+                                <argument>msi</argument>
+                                <argument>--dest</argument>
+                                <argument>${project.build.directory}</argument>
+                                <argument>--icon</argument>
+                                <argument>src/main/resources/image/app.ico</argument>
                             </arguments>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
 
         </plugins>
     </build>

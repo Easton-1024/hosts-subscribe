@@ -9,9 +9,9 @@ import com.xyt.project.email.EmailService;
 import com.xyt.project.model.IPInfoDTO;
 import com.xyt.project.service.NetworkService;
 import com.xyt.project.util.AppUtil;
+import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.mail.MessagingException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
